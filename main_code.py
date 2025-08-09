@@ -167,7 +167,6 @@ with trange(len(dataset)) as t:
         <document> {dataset[i]["document"]} </document>
         <summary>{dataset[i]["claim"]}</summary>
         Answer:
-      
       """},
       ],
       stream=False

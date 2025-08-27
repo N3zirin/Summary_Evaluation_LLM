@@ -7,7 +7,7 @@ from datasets import load_dataset
 from sklearn.metrics import accuracy_score
 from helpers import Summary_Ranking_Task_TLDR, Summary_Scorring_Task, Factual_Consistency_Task
 
-parser = argpars.ArgumentParser(description="arguments")
+parser = argparse.ArgumentParser(description="arguments")
 parser.add_argument("--dataset_name", type=str, default="cogensumm", help="Name of the dataset to evaluate(cogensumm, factcc, polytope, summeval, xsumfaith, frank)")
 parser.add_argument("--llm_provider", type=str, default="dp", help="Name of the model to use for evaluation(qwen, gpt, dp, lg, llama)")
 parser.add_argument("--trad_method", type=str, default="", help="Name of the traditional method to use for evaluation (summac, bartscore, ner_consistency)")

@@ -8,13 +8,13 @@ from sklearn.metrics import accuracy_score
 from helpers import Summary_Ranking_Task_TLDR, Summary_Scorring_Task, Factual_Consistency_Task
 
 parser = argparse.ArgumentParser(description="arguments")
-parser.add_argument("--dataset_name", type=str, default="cogensumm", help="Name of the dataset to evaluate(cogensumm, factcc, polytope, summeval, xsumfaith, frank)")
-parser.add_argument("--llm_provider", type=str, default="dp", help="Name of the model to use for evaluation(qwen, gpt, dp, lg, llama)")
-parser.add_argument("--trad_method", type=str, default="", help="Name of the traditional method to use for evaluation (summac, bartscore, ner_consistency)")
-parser.add_argument("--model_name", type=str, default="deepseek-chat", help="Name of the model to use for evaluation")
-parser.add_argument("--task", type=str, default="consistency", help="Task to evaluate (e.g., consistency, ranking, )")
-parser.add_argument("--split", type=str, default='val', help="Split of the dataset to use for evaluation (e.g., train, val, test)")
-parser.add_argument('--type', type=str, default='COT', help='Type of evaluation to perform (COT, no_COT)')
+parser.add_argument("--dataset_name", type=str, default="cogensumm", help="Dataset names for evaluation: cogensumm, factcc, polytope, summeval, xsumfaith, frank.")
+parser.add_argument("--llm_provider", type=str, default="dp", help="Specify the model to be utilized for evaluation (qwen, gpt, dp, lg, llama)")
+parser.add_argument("--trad_method", type=str, default="", help="Specify the model to be utilized for evaluation (qwen, gpt, dp, lg, llama).")
+parser.add_argument("--model_name", type=str, default="deepseek-chat", help="Designation of the model for assessment")
+parser.add_argument("--task", type=str, default="consistency", help="Task for assessment (e.g., consistency, ranking)")
+parser.add_argument("--split", type=str, default='val', help="Division of the dataset for evaluative purposes (e.g., training, validation, testing)")
+parser.add_argument('--type', type=str, default='COT', help='Evaluation type to conduct (COT, no_COT)')
 args = parser.parse_args()
 
 

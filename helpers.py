@@ -141,7 +141,7 @@ def Summary_Ranking_Task_TLDR(dataset, model_name = "gpt-4.1-mini", llm_provider
                 try:
                     rate_limiter.wait_if_needed()
                     response = client.chat.completions.create(
-                        model=args.model_name,
+                        model=model_name,
                         messages=[
                             {"role": "system", "content": "You are a helpful assistant"},
                             {"role": "user", "content": prompt.format(
@@ -177,6 +177,79 @@ def Summary_Ranking_Task_TLDR(dataset, model_name = "gpt-4.1-mini", llm_provider
 
             if i % 5 == 0 and i > 0:
                 t.set_postfix(acc=balanced_accuracy_score(predictions, true_labels))
+
+def Summary_Ranking_Task_FIB(dataset, model_name = "gpt-4.1-mini", llm_provider = "gpt"):
+
+    rate_limiter = RateLimiter(max_requests=59, time_window=60)
+    client = initialize_clients(llm_provider)
+    failed_requests = []
+    pattern = r'<Answer>\*{0,2}A\*{0,2}</Answer>'
+    prompt = """Decide which one of the following summary is consistent with the corresponding article.
+        Note that consistency means all information in the summary is supported by the article.
+        Explain your reasoning step-by-step and then give the answer in <Answer>(A or B)</Answer> tags:
+
+        <Article>
+        {document}
+        </Article>
+
+        <Summary A>
+        {sum_a}
+        </Summary A>
+        <Summary B>
+        {sum_b}
+        </Summary B>
+        """
+
+    predictions, true_labels = [], []
+
+    with trange(len(dataset)) as t:
+        for i in t:
+            max_retries = 3
+            retry_count = 0
+            sucess = False
+            sums = [sum for sum in dataset[i]['list_choices']]
+            document = dataset[i]['input']
+            while retry_count < max_retries:
+                try:
+                    rate_limiter.wait_if_needed()
+                    response = client.chat.completions.create(
+                        model=model_name,
+                        messages=[
+                            {"role": "system", "content": "You are a helpful assistant"},
+                            {"role": "user", "content": prompt.format(
+                                document=document,
+                                sum_a=sums[0],
+                                sum_b=sums[1]
+                            )}
+                        ],
+                        stream=False
+                    )
+                    response = response.choices[0].message.content
+                    if re.search(pattern, response, re.MULTILINE):
+                        predictions.append(0)
+                        print("Summary A is better")
+                    else:
+                        predictions.append(1)
+                    true_labels.append(dataset[i]['choice'])
+                    print(f"Response: {response}, true_label: {dataset[i]['lbl']}")
+                    success = True
+                    break 
+                except Exception as e:
+                    retry_count += 1
+                    error_msg = f"Request failed for item {i}, attempt {retry_count}/{max_retries}: {str(e)}"
+                    print(error_msg)
+                    if retry_count < max_retries:
+                        wait_time = 2 ** retry_count
+                        print(f"Retrying in {wait_time} seconds...")
+                        time.sleep(wait_time)
+                    
+            if not success:
+                print(f"Failed to process item {i} after {max_retries} attempts. Skipping...")
+                failed_requests.append(i)    
+
+            if i % 5 == 0 and i > 0:
+                t.set_postfix(acc=balanced_accuracy_score(predictions, true_labels))
+
 
 def Factual_Consistency_Task(dataset, model_name = "gpt-4.1-mini", llm_provider = "gpt"):
     rate_limiter = RateLimiter(max_requests=59, time_window=60)

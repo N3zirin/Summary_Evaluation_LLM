@@ -5,7 +5,7 @@ from together import Together
 import argparse
 from datasets import load_dataset
 from sklearn.metrics import accuracy_score
-from helpers import Summary_Ranking_Task_TLDR, Summary_Scorring_Task, Factual_Consistency_Task
+from helpers import Summary_Ranking_Task_TLDR, Summary_Scorring_Task, Factual_Consistency_Task, Summary_Ranking_Task_FIB
 
 parser = argparse.ArgumentParser(description="arguments")
 parser.add_argument("--dataset_name", type=str, default="cogensumm", help="Dataset names for evaluation: cogensumm, factcc, polytope, summeval, xsumfaith, frank.")
@@ -28,3 +28,6 @@ if __name__=="__main__":
     elif args.task == "consistency":
         dataset =  load_dataset('json', data_files="DatasetsFolder\summedits_podcast.json", split="train")
         Factual_Consistency_Task(dataset, args.model_name, args.llm_provider)
+    elif args.task == "ranking" and args.dataset_name == "FIB":
+        dataset = load_dataset("r-three/fib",split="test")
+        Summary_Ranking_Task_FIB(dataset, args.model_name, args.llm_provider)

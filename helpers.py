@@ -250,8 +250,7 @@ def Summary_Ranking_Task_FIB(dataset, model_name = "gpt-4.1-mini", llm_provider 
             if i % 5 == 0 and i > 0:
                 t.set_postfix(acc=balanced_accuracy_score(predictions, true_labels))
 
-
-def Factual_Consistency_Task(dataset, model_name = "gpt-4.1-mini", llm_provider = "gpt"):
+def Factual_Consistency_SumEdits(dataset, model_name = "gpt-4.1-mini", llm_provider = "gpt"):
     rate_limiter = RateLimiter(max_requests=59, time_window=60)
     predictions = []
     true_labels = []
@@ -289,6 +288,240 @@ def Factual_Consistency_Task(dataset, model_name = "gpt-4.1-mini", llm_provider 
                                 "content": prompt.format(
                                     document=dataset[i]['doc'],
                                     summary=dataset[i]['summary']
+                                ),
+                            },
+                        ],
+                        stream=False
+                    )
+                    prediction = extract_answer_qwen(response.choices[0].message.content)
+                    predictions.append(prediction)
+                    true_labels.append(dataset[i]['label'])
+
+                    print(response.choices[0].message.content)
+                    print('-' * 100)
+                    print(f"Prediction: {prediction} True Label: {dataset[i]['label']}")
+
+                    success = True
+                    break
+
+                except Exception as e:
+                    retry_count += 1
+                    error_msg = f"Request failed for item {i}, attempt {retry_count}/{max_retries}: {str(e)}"
+                    print(error_msg)
+
+                    if retry_count < max_retries:
+                        wait_time = 2 ** retry_count
+                        print(f"Retrying in {wait_time} seconds...")
+                        time.sleep(wait_time)
+
+            if not success:
+                print(f"Failed to process item {i} after {max_retries} attempts. Skipping...")
+                failed_requests.append(i)
+
+            if i % 5 == 0 and i > 0 and len(predictions) > 0:
+                t.set_postfix(
+                    accuracy=balanced_accuracy_score(true_labels, predictions),
+                    processed=len(predictions),
+                    failed=len(failed_requests),
+                    total=i+1
+                )
+
+    print(classification_report(true_labels, predictions, target_names=["Inconsistent", "Consistent"]))
+
+def Factual_Consistency_FCSTS(dataset, model_name = "gpt-4.1-mini", llm_provider = "gpt"):
+    rate_limiter = RateLimiter(max_requests=59, time_window=60)
+    predictions = []
+    true_labels = []
+    failed_requests = []
+
+    prompt = """Decide if the following summary is consistent with the corresponding article.
+      Note that consistency means all information in the summary is supported by the article.
+      Do not give any reasoning, just answer (consistent or inconsistent) at the end:
+      <Article>
+      {document}
+      </Article>
+
+      <Summary>
+      {summary}
+      </Summary>
+      Answer:"""
+
+    client = initialize_clients(llm_provider)
+
+    with trange(len(dataset)) as t:
+        for i in t:
+            max_retries = 3
+            retry_count = 0
+            success = False
+
+            while retry_count < max_retries:
+                try:
+                    rate_limiter.wait_if_needed()
+                    response = client.chat.completions.create(
+                        model=model_name,
+                        messages=[
+                            {"role": "system", "content": "You are a helpful assistant"},
+                            {
+                                "role": "user",
+                                "content": prompt.format(
+                                    document=dataset[i]['context'],
+                                    summary=dataset[i]['summary']
+                                ),
+                            },
+                        ],
+                        stream=False
+                    )
+                    prediction = extract_answer_qwen(response.choices[0].message.content)
+                    predictions.append(prediction)
+                    true_labels.append(dataset[i]['label'])
+
+                    print(response.choices[0].message.content)
+                    print('-' * 100)
+                    print(f"Prediction: {prediction} True Label: {dataset[i]['label']}")
+
+                    success = True
+                    break
+
+                except Exception as e:
+                    retry_count += 1
+                    error_msg = f"Request failed for item {i}, attempt {retry_count}/{max_retries}: {str(e)}"
+                    print(error_msg)
+
+                    if retry_count < max_retries:
+                        wait_time = 2 ** retry_count
+                        print(f"Retrying in {wait_time} seconds...")
+                        time.sleep(wait_time)
+
+            if not success:
+                print(f"Failed to process item {i} after {max_retries} attempts. Skipping...")
+                failed_requests.append(i)
+
+            if i % 5 == 0 and i > 0 and len(predictions) > 0:
+                t.set_postfix(
+                    accuracy=balanced_accuracy_score(true_labels, predictions),
+                    processed=len(predictions),
+                    failed=len(failed_requests),
+                    total=i+1
+                )
+
+    print(classification_report(true_labels, predictions, target_names=["Inconsistent", "Consistent"]))
+
+def Factual_Consistency_FactCC(dataset, model_name = "gpt-4.1-mini", llm_provider = "gpt"):
+    rate_limiter = RateLimiter(max_requests=59, time_window=60)
+    predictions = []
+    true_labels = []
+    failed_requests = []
+
+    prompt = """Decide if the following summary is consistent with the corresponding article.
+      Note that consistency means all information in the summary is supported by the article.
+      Do not give any reasoning, just answer (consistent or inconsistent) at the end:
+      <Article>
+      {document}
+      </Article>
+
+      <Summary>
+      {summary}
+      </Summary>
+      Answer:"""
+
+    client = initialize_clients(llm_provider)
+
+    with trange(len(dataset)) as t:
+        for i in t:
+            max_retries = 3
+            retry_count = 0
+            success = False
+
+            while retry_count < max_retries:
+                try:
+                    rate_limiter.wait_if_needed()
+                    response = client.chat.completions.create(
+                        model=model_name,
+                        messages=[
+                            {"role": "system", "content": "You are a helpful assistant"},
+                            {
+                                "role": "user",
+                                "content": prompt.format(
+                                    document=dataset[i]['text'],
+                                    summary=dataset[i]['claim']
+                                ),
+                            },
+                        ],
+                        stream=False
+                    )
+                    prediction = extract_answer_qwen(response.choices[0].message.content)
+                    predictions.append(prediction)
+                    true_labels.append(1 if dataset[i]['label'] == "CORRECT" else 0)
+
+                    print(response.choices[0].message.content)
+                    print('-' * 100)
+                    print(f"Prediction: {prediction} True Label: {dataset[i]['label']}")
+
+                    success = True
+                    break
+
+                except Exception as e:
+                    retry_count += 1
+                    error_msg = f"Request failed for item {i}, attempt {retry_count}/{max_retries}: {str(e)}"
+                    print(error_msg)
+
+                    if retry_count < max_retries:
+                        wait_time = 2 ** retry_count
+                        print(f"Retrying in {wait_time} seconds...")
+                        time.sleep(wait_time)
+
+            if not success:
+                print(f"Failed to process item {i} after {max_retries} attempts. Skipping...")
+                failed_requests.append(i)
+
+            if i % 5 == 0 and i > 0 and len(predictions) > 0:
+                t.set_postfix(
+                    accuracy=balanced_accuracy_score(true_labels, predictions),
+                    processed=len(predictions),
+                    failed=len(failed_requests),
+                    total=i+1
+                )
+
+    print(classification_report(true_labels, predictions, target_names=["Inconsistent", "Consistent"]))
+
+def Factual_Consistency_CoGenSum(dataset, model_name = "gpt-4.1-mini", llm_provider = "gpt"):
+    rate_limiter = RateLimiter(max_requests=59, time_window=60)
+    predictions = []
+    true_labels = []
+    failed_requests = []
+
+    prompt = """Decide if the following summary is consistent with the corresponding article.
+      Note that consistency means all information in the summary is supported by the article.
+      Do not give any reasoning, just answer (consistent or inconsistent) at the end:
+      <Article>
+      {document}
+      </Article>
+
+      <Summary>
+      {summary}
+      </Summary>
+      Answer:"""
+
+    client = initialize_clients(llm_provider)
+
+    with trange(len(dataset)) as t:
+        for i in t:
+            max_retries = 3
+            retry_count = 0
+            success = False
+
+            while retry_count < max_retries:
+                try:
+                    rate_limiter.wait_if_needed()
+                    response = client.chat.completions.create(
+                        model=model_name,
+                        messages=[
+                            {"role": "system", "content": "You are a helpful assistant"},
+                            {
+                                "role": "user",
+                                "content": prompt.format(
+                                    document=dataset[i]['document'],
+                                    summary=dataset[i]['claim']
                                 ),
                             },
                         ],

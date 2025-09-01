@@ -60,7 +60,7 @@ Ranking_Prompt = \
         </Summary B>
         """
 
-Summary_Scorring_Prompt_CoT = \
+Summary_Scoring_Prompt_CoT = \
 """Your task is to rate the factual consistency of the provided summary against the source article.A score of 1.0 means the summary is perfectly factual, containing no information that contradicts or is not supported by the article.
         A score of 0.0 means the summary is completely non-factual.
         Carefully read the article and the summary. Then, provide ONLY the numerical factuality score as your response. Add explanation, commentary, or conversational text.
@@ -71,7 +71,7 @@ Summary_Scorring_Prompt_CoT = \
         [FACTUALITY SCORE]:
         """
 
-Summary_Scorring_Prompt = \
+Summary_Scoring_Prompt = \
 """Your task is to rate the factual consistency of the provided summary against the source article.A score of 1.0 means the summary is perfectly factual, containing no information that contradicts or is not supported by the article.
         A score of 0.0 means the summary is completely non-factual.
         Carefully read the article and the summary. Then, provide ONLY the numerical factuality score as your response. Do not add any explanation, commentary, or conversational text.

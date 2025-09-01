@@ -43,7 +43,10 @@ This project aims to provide insights into the strengths and limitations of curr
 | `consistency` | `fcsts` | Factual consistency evaluation | HuggingFace: `achandlr/FactualConsistencyScoresTextSummarization` |
 | `ranking` | `tldr` | Summary ranking task | Local file: `DatasetsFolder/batch18.json` |
 | `ranking` | `fib` | Summary ranking task | HuggingFace: `r-three/fib` |
+| `ranking` | `sumpairs` | Summary ranking task | Local file: `DatasetsFolder/benchmark_data.json` |
+| `ranking and consistency`|`fib, fcsts, factcc, sumpairs, cogensum, sumedits, tldr`|SummacConv, NER, SummacZs, Google Flan-T5: Traditional methods for ranking and consistency evaluation|-|
 | `scoring` | - | Summary scoring task | Local file: `DatasetsFolder/model_annotations.aligned.paired.jsonl` |
+| `scoring` |`summeval`| BART, BERT, ROUGE, METEOR, BLEU, SACREBLEU Traditional methods | Local file: `DatasetsFolder/model_annotations.aligned.paired.jsonl`|
 
 ## Usage Examples
 

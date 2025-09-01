@@ -70,3 +70,61 @@ python main.py --task scoring --llm_provider qwen --model_name qwen-chat
 - HuggingFace datasets will be automatically downloaded when first accessed
 - The `--type` parameter controls whether Chain-of-Thought (CoT) prompting is used
 - Some combinations may require specific model configurations or API keys
+
+
+```markdown
+## GRPO Fine-Tuning
+
+This repository includes advanced fine-tuning capabilities using **Generalized Reinforcement Learning from Process Outcomes (GRPO)** for improving factual consistency evaluation.
+
+### GRPO Training Features
+
+- **Multi-Reward System**: Uses 4 specialized reward functions:
+  - `check_consistency_format`: Rewards proper reasoning structure
+  - `check_consistency_answer`: Validates correctness against ground truth  
+  - `check_reasoning_quality`: Evaluates depth and quality of reasoning
+  - `check_evidence_usage`: Rewards proper source material referencing
+
+- **Custom Chat Template**: Implements structured reasoning with special tokens:
+  - `<start_working_out>`: Beginning of reasoning process
+  - `<end_working_out>`: End of reasoning process
+  - `<SOLUTION>`: Final answer section
+
+### GRPO Training Setup
+
+```bash
+# Run GRPO training (modify paths in the script as needed)
+python grpo_train.py
+```
+
+### Key Configuration
+
+| Parameter | Value | Description |
+|-----------|-------|-------------|
+| Base Model | `unsloth/Qwen3-4B-Base` | Foundation model for fine-tuning |
+| LoRA Rank | 128 | Low-rank adaptation parameter |
+| Max Sequence Length | 4096 | Maximum context length |
+| Learning Rate | 5e-6 | GRPO training learning rate |
+| Batch Size | 1 | Per-device training batch size |
+| Generations | 8 | Number of generations per prompt |
+| Max Steps | 3000 | Total training steps |
+
+### Training Data Format
+
+The GRPO trainer expects data with the following structure:
+- `prompt`: The factual consistency evaluation task
+- `answer`: Ground truth label (consistent/inconsistent) 
+- Proper reasoning traces in the expected format
+
+### Model Outputs
+
+After GRPO training, models produce structured responses:
+```
+<start_working_out>
+[Detailed reasoning about consistency...]
+<end_working_out>
+<SOLUTION>
+consistent/inconsistent
+</SOLUTION>
+```
+```

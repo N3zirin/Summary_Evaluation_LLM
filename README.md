@@ -75,17 +75,17 @@ python main.py --task scoring --llm_provider qwen --model_name qwen-chat
 ```markdown
 ## GRPO Fine-Tuning
 
-This repository includes advanced fine-tuning capabilities using **Generalized Reinforcement Learning from Process Outcomes (GRPO)** for improving factual consistency evaluation.
+This repository includes advanced fine-tuning capabilities using Groupe Relative Policy Optimisation (GRPO) for improving factual consistency evaluation.
 
 ### GRPO Training Features
 
-- **Multi-Reward System**: Uses 4 specialized reward functions:
+- Multi-Reward System: Uses 4 specialized reward functions:
   - `check_consistency_format`: Rewards proper reasoning structure
   - `check_consistency_answer`: Validates correctness against ground truth  
   - `check_reasoning_quality`: Evaluates depth and quality of reasoning
   - `check_evidence_usage`: Rewards proper source material referencing
 
-- **Custom Chat Template**: Implements structured reasoning with special tokens:
+- Custom Chat Template: Implements structured reasoning with special tokens:
   - `<start_working_out>`: Beginning of reasoning process
   - `<end_working_out>`: End of reasoning process
   - `<SOLUTION>`: Final answer section

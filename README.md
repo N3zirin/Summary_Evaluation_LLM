@@ -17,3 +17,53 @@ This repository is part of an MSc dissertation project that investigates the **f
 
 ---  
 This project aims to provide insights into the strengths and limitations of current approaches for evaluating factual consistency in text summarization.  
+
+
+# Usage Guide
+
+## Command Line Arguments
+
+| Argument | Type | Default | Description | Available Options |
+|----------|------|---------|-------------|-------------------|
+| `--dataset_name` | str | `cogensumm` | Dataset name for evaluation | `cogensumm`, `factcc`, `polytope`, `summeval`, `xsumfaith`, `frank`, `tldr`, `fib`, `sumedits`, `fcsts` |
+| `--llm_provider` | str | `dp` | LLM provider for evaluation | `qwen`, `gpt`, `dp`, `lg`, `llama` |
+| `--trad_method` | str | `""` | Traditional method for evaluation | (specify traditional method name) |
+| `--model_name` | str | `deepseek-chat` | Specific model designation | Model-specific names (e.g., `deepseek-chat`) |
+| `--task` | str | `consistency` | Evaluation task type | `consistency`, `ranking`, `scoring` |
+| `--split` | str | `val` | Dataset split for evaluation | `train`, `val`, `test` |
+| `--type` | str | `COT` | Evaluation prompting type | `COT`, `no_COT` |
+
+## Supported Task-Dataset Combinations
+
+| Task | Dataset | Description | Data Source |
+|------|---------|-------------|-------------|
+| `consistency` | `cogensumm` | Factual consistency evaluation | Local file: `DatasetsFolder/cogensumm_val.jsonl` |
+| `consistency` | `factcc` | Factual consistency evaluation | HuggingFace: `mtc/factcc_annotated_eval_data` |
+| `consistency` | `sumedits` | Factual consistency evaluation | Local file: `DatasetsFolder/summedits_podcast.json` |
+| `consistency` | `fcsts` | Factual consistency evaluation | HuggingFace: `achandlr/FactualConsistencyScoresTextSummarization` |
+| `ranking` | `tldr` | Summary ranking task | Local file: `DatasetsFolder/batch18.json` |
+| `ranking` | `fib` | Summary ranking task | HuggingFace: `r-three/fib` |
+| `scoring` | - | Summary scoring task | Local file: `DatasetsFolder/model_annotations.aligned.paired.jsonl` |
+
+## Usage Examples
+
+```bash
+# Factual consistency evaluation with CoGenSum dataset using DeepSeek
+python main.py --dataset_name cogensumm --llm_provider dp --model_name deepseek-chat --task consistency --type COT
+
+# Summary ranking with FIB dataset using GPT
+python main.py --dataset_name fib --llm_provider gpt --model_name gpt-4 --task ranking --type no_COT
+
+# Factual consistency evaluation with FactCC dataset using LLaMA
+python main.py --dataset_name factcc --llm_provider llama --model_name llama-7b --task consistency --split test
+
+# Summary scoring task
+python main.py --task scoring --llm_provider qwen --model_name qwen-chat
+```
+
+## Notes
+
+- Ensure all required dataset files are present in the `DatasetsFolder/` directory for local datasets
+- HuggingFace datasets will be automatically downloaded when first accessed
+- The `--type` parameter controls whether Chain-of-Thought (CoT) prompting is used
+- Some combinations may require specific model configurations or API keys

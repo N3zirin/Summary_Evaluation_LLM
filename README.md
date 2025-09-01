@@ -125,3 +125,64 @@ After GRPO training, models produce structured responses:
 consistent/inconsistent
 </SOLUTION>
 ```
+
+
+## GRPO Model Evaluation
+
+This repository includes comprehensive evaluation capabilities for GRPO fine-tuned models with statistical analysis across multiple experimental runs.
+
+### Evaluation Features
+
+- **Multi-Seed Experiments**: Runs evaluation across multiple random seeds for statistical robustness
+- **Automatic Text Truncation**: Handles long documents by intelligently truncating articles and summaries
+- **Token Management**: Allocates 80% of available tokens to articles, 20% to summaries
+- **Statistical Analysis**: Provides confidence intervals, standard deviation, and range analysis
+- **Progress Tracking**: Real-time accuracy monitoring with processing statistics
+
+### Model Configuration
+
+| Parameter | Value | Description |
+|-----------|-------|-------------|
+| Base Model | `unsloth/Qwen3-4B-Base` | Foundation model for evaluation |
+| LoRA Rank | 256 | Low-rank adaptation parameter |
+| Max Sequence Length | 4096 | Maximum input context length |
+| Max Generation Tokens | 512 | Maximum tokens for model response |
+| Temperature | 1.0 | Sampling temperature |
+| Top-K | 50 | Top-K sampling parameter |
+
+### Evaluation Setup
+
+Run multi-seed evaluation experiments:
+`python grpo_eval.py`
+
+### Key Functions
+
+- **`create_prompt_with_truncation()`**: Intelligently truncates input to fit context limits
+- **`extract_answer()`**: Extracts consistency judgments from model responses using multiple patterns
+- **`run_single_experiment()`**: Executes single evaluation run with specified seed
+- **`run_multiple_experiments()`**: Manages multiple experimental runs with statistical analysis
+
+### Default Configuration
+
+- **Seeds**: `[3407, 43, 4352, 999, 396, 2003, 15703, 5084]`
+- **Samples per experiment**: 1000
+- **Dataset**: `achandlr/FactualConsistencyScoresTextSummarization`
+- **Evaluation metric**: Balanced accuracy score
+
+### Output Analysis
+
+The evaluation provides comprehensive statistics including:
+- Mean accuracy with standard deviation
+- Confidence intervals (68% and 95%)
+- Processing success rates
+- Individual experiment results
+- Results saved to `accuracy_results.json`
+
+### Answer Extraction Patterns
+
+The system recognizes multiple response formats:
+- `answer: consistent/inconsistent`
+- `conclusion: consistent/inconsistent`
+- `final answer: consistent/inconsistent`
+- `therefore ... consistent/inconsistent`
+- Simple word matching as fallback

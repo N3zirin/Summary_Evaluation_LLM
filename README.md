@@ -72,7 +72,7 @@ python main.py --task scoring --llm_provider qwen --model_name qwen-chat
 - Some combinations may require specific model configurations or API keys
 
 
-```markdown
+
 ## GRPO Fine-Tuning
 
 This repository includes advanced fine-tuning capabilities using Generalized Reinforcement Learning from Process Outcomes (GRPO) for improving factual consistency evaluation.
@@ -124,5 +124,4 @@ After GRPO training, models produce structured responses:
 <SOLUTION>
 consistent/inconsistent
 </SOLUTION>
-```
 ```
